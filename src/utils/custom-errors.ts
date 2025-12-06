@@ -22,3 +22,10 @@ export class ConflictError extends BaseError {
         super(message, 409);
     }
 }
+
+//auth error
+export class AuthError extends BaseError {
+    constructor(message: string = 'Authentication failed.') {
+        super(message, 401);
+    }
+}
