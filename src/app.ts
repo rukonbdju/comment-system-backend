@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import env from "./config/env.config";
+import { errorHandler } from "./middlewares/error.middleware";
 
 const app = express();
 
@@ -12,5 +13,7 @@ app.use(cookieParser());
 app.get("/", (req, res) => {
     res.send("Backend is running!");
 });
+
+app.use(errorHandler)
 
 export default app;
