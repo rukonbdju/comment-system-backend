@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import commentModel from "./comment.model";
+import { populate } from "dotenv";
 
 const CommentRepository = {
     /** Creates a new comment. */
@@ -8,12 +9,12 @@ const CommentRepository = {
             content: data.content,
             user: new mongoose.Types.ObjectId(data.user)
         })
-        return newComment.save()
+        return (await newComment.save()).populate('user')
     },
 
     /** Finds a comment by ID and populates the user field. */
     findById: async (id: string) => {
-        return commentModel.findById(id).lean();
+        return commentModel.findById(id).populate('user').lean();
     },
 
     /** Finds all comments with pagination and returns total count. */
@@ -25,6 +26,7 @@ const CommentRepository = {
             .sort({ createdAt: -1 })
             .skip(skip)
             .limit(limit)
+            .populate('user')
             .lean();
 
         // Fetch total count (without filtering)
@@ -41,7 +43,9 @@ const CommentRepository = {
                 $set: { content: data.content, updatedAt: new Date() }
             },
             { new: true, runValidators: true } // Return the new document
-        ).lean();
+        )
+            .populate('user')
+            .lean();
 
         return updatedComment;
     },
@@ -60,7 +64,9 @@ const CommentRepository = {
             id,
             { $inc: { [updateField]: increment } },
             { new: true }
-        ).lean();
+        )
+            .populate('user')
+            .lean();
 
         return updatedComment;
     }

@@ -40,7 +40,8 @@ export const CommentController = {
 
             res.status(200).json({
                 success: true,
-                data: result,
+                data: result.comments,
+                meta: result.meta,
             });
 
         } catch (error) {
