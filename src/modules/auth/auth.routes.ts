@@ -3,7 +3,7 @@ import { AuthController } from "./auth.controller";
 import { protect } from "../../middlewares/auth.middleware";
 
 const authRouter = Router()
-authRouter.post('/register', AuthController.refresh)
+authRouter.post('/register', AuthController.register)
 authRouter.post('/login', AuthController.login);
 authRouter.post('/logout', AuthController.logout);
 authRouter.post('/refresh', AuthController.refresh);

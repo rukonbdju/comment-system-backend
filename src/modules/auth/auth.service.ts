@@ -43,6 +43,12 @@ export const AuthService = {
             email,
             password: hashedPassword,
         });
+        const tokenPayload = {
+            userId: user._id.toString(),
+        };
+
+        const accessToken = generateAccessToken(tokenPayload);
+        const refreshToken = generateRefreshToken(tokenPayload);
 
         return {
             user: {
@@ -50,6 +56,8 @@ export const AuthService = {
                 name: user.name,
                 email: user.email,
             },
+            accessToken,
+            refreshToken,
         };
     },
 

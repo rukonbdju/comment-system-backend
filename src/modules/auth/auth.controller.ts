@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { AuthService } from './auth.service';
 import { AuthError, BaseError } from '../../utils/custom-errors';
+import env from '../../config/env.config';
 
 export const AuthController = {
     register: async (req: Request, res: Response, next: NextFunction) => {
@@ -12,7 +13,20 @@ export const AuthController = {
             }
 
             const result = await AuthService.register(data);
+            // ✅ SET HTTP-ONLY COOKIES
+            res.cookie('accessToken', result.accessToken, {
+                httpOnly: true,
+                secure: env.NODE_ENV === 'production',
+                sameSite: 'strict',
+                maxAge: 60 * 60 * 1000, // 1h
+            });
 
+            res.cookie('refreshToken', result.refreshToken, {
+                httpOnly: true,
+                secure: env.NODE_ENV === 'production',
+                sameSite: 'strict',
+                maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+            });
             res.status(201).json({
                 success: true,
                 message: 'Registration successful.',
@@ -30,14 +44,14 @@ export const AuthController = {
             // ✅ SET HTTP-ONLY COOKIES
             res.cookie('accessToken', result.accessToken, {
                 httpOnly: true,
-                secure: process.env.NODE_ENV === 'production',
+                secure: env.NODE_ENV === 'production',
                 sameSite: 'strict',
-                maxAge: 30 * 60 * 1000, // 15 min
+                maxAge: 60 * 60 * 1000, // 1h
             });
 
             res.cookie('refreshToken', result.refreshToken, {
                 httpOnly: true,
-                secure: process.env.NODE_ENV === 'production',
+                secure: env.NODE_ENV === 'production',
                 sameSite: 'strict',
                 maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
             });
@@ -80,7 +94,7 @@ export const AuthController = {
             // ✅ Rotate access token
             res.cookie('accessToken', result.accessToken, {
                 httpOnly: true,
-                secure: process.env.NODE_ENV === 'production',
+                secure: env.NODE_ENV === 'production',
                 sameSite: 'strict',
                 maxAge: 15 * 60 * 1000,
             });
