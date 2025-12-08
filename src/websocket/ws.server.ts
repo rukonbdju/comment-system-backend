@@ -8,6 +8,7 @@ let io: SocketIOServer;
 export const initWsServer = (httpServer: HttpServer) => {
     // 1. Initialize Socket.IO
     io = new SocketIOServer(httpServer, {
+        path: '/comments/reactions/',
         cors: {
             origin: [env.FRONTEND_URL],
             credentials: true,
