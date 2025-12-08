@@ -95,7 +95,7 @@ export const CommentController = {
 
             await CommentService.deleteComment(commentId, userId);
 
-            res.status(204).send({
+            res.status(200).send({
                 success: true,
                 message: 'Comment deleted successfully.'
             });

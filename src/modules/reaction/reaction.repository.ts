@@ -46,4 +46,15 @@ export const ReactionRepository = {
         return newReaction.save();
     },
 
+    //delete reactions by targetId
+    deleteReactionsByTargetId: async (targetId: string, targetType: string) => {
+        const result = await reactionModel.deleteMany({
+            targetId: targetId,
+            targetType: targetType
+        });
+
+        // Returns the number of documents deleted
+        return result.deletedCount;
+    }
+
 }

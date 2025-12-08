@@ -68,7 +68,7 @@ const CommentRepository = {
     /** Deletes a comment by ID. */
     delete: async (id: string): Promise<boolean> => {
         const result = await commentModel.findByIdAndDelete(id);
-        return !!result; // Return true if document was found and deleted
+        return result ? true : false; // Return true if document was found and deleted
     },
 
     /** Atomically increments/decrements like or dislike count. */

@@ -80,13 +80,15 @@ const CommentService = {
             // Success, as the comment is already gone
             return true;
         }
-        console.log(comment.user.toString(), userId)
         // **BUSINESS LOGIC: Check ownership**
         if (comment.user._id.toString() !== userId) {
             throw new AuthError('You do not have permission to delete this comment.');
         }
 
         const deleted = await CommentRepository.delete(commentId);
+        if (deleted) {
+            await ReactionRepository.deleteReactionsByTargetId(commentId, 'Comment');
+        }
         return deleted;
     },
 }
