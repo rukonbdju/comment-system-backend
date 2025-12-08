@@ -30,3 +30,19 @@ git clone <your-repo-link>
 cd <repo-name>
 npm install
 npm run dev
+```
+
+### 2. Environment Variables
+
+Create a file named .env in the root directory and add the following variables:
+
+```bash
+NODE_ENV=development
+MONGO_URI=
+PORT=5000
+ACCESS_TOKEN_SECRET=access-secret
+REFRESH_TOKEN_SECRET=refresh-secret
+ACCESS_TOKEN_EXPIRES_IN=3600
+REFRESH_TOKEN_EXPIRES_IN=604800
+FRONTEND_URL=http://localhost:3000
+```
