@@ -18,12 +18,12 @@ const CommentRepository = {
     },
 
     /** Finds all comments with pagination and returns total count. */
-    findAll: async (page: number = 1, limit: number = 20) => {
+    findAll: async (userId: string, page: number = 1, limit: number = 20, sort?: string) => {
         const skip = (page - 1) * limit;
 
         // Fetch comments
         const comments = await commentModel.find({})
-            .sort({ createdAt: -1 })
+            .sort({ createdAt: sort === 'old' ? 1 : -1 })
             .skip(skip)
             .limit(limit)
             .populate('user')
@@ -57,7 +57,7 @@ const CommentRepository = {
     },
 
     /** Atomically increments/decrements like or dislike count. */
-    updateCount: async (id: string, action: 'like' | 'dislike', increment: 1 | -1) => {
+    updateCount: async (id: string, action: string, increment: 1 | -1) => {
         const updateField = action === 'like' ? 'likeCount' : 'dislikeCount';
 
         const updatedComment = await commentModel.findByIdAndUpdate(

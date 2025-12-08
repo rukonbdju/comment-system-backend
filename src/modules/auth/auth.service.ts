@@ -51,11 +51,7 @@ export const AuthService = {
         const refreshToken = generateRefreshToken(tokenPayload);
 
         return {
-            user: {
-                id: user._id,
-                name: user.name,
-                email: user.email,
-            },
+            user,
             accessToken,
             refreshToken,
         };
@@ -88,11 +84,7 @@ export const AuthService = {
         const refreshToken = generateRefreshToken(tokenPayload);
 
         return {
-            user: {
-                id: user._id,
-                name: user.name,
-                email: user.email,
-            },
+            user,
             accessToken,
             refreshToken,
         };
@@ -127,10 +119,6 @@ export const AuthService = {
             throw new NotFoundError('User not found');
         }
 
-        return {
-            id: user._id,
-            name: user.name,
-            email: user.email,
-        };
+        return user;
     },
 };

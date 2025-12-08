@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import commentModel from './comment.model';
 import CommentService from './comment.service';
 import { AuthenticatedRequest } from '../../middlewares/auth.middleware';
+import { NotFoundError } from '../../utils/custom-errors';
 
 export const CommentController = {
     /** POST /api/comments */
@@ -24,13 +25,17 @@ export const CommentController = {
     },
 
     /** GET /api/comments?page=1&limit=20 */
-    getAllComments: async (req: Request, res: Response, next: NextFunction) => {
+    getAllComments: async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
         try {
+            const userId = req.user?.userId
+            if (!userId) {
+                throw new NotFoundError('User not found')
+            }
             // Extract and parse page and limit from query string. Default to 1 and 20.
             const page = parseInt(req.query.page as string) || 1;
             const limit = parseInt(req.query.limit as string) || 20;
 
-            const result = await CommentService.getAllComments(page, limit);
+            const result = await CommentService.getAllComments(userId, page, limit, "new");
 
             // Set pagination headers (optional but recommended for API discoverability)
             res.header('X-Total-Count', result.meta.totalCount.toString());
@@ -66,11 +71,11 @@ export const CommentController = {
     updateComment: async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
         try {
             const userId = req.user!.userId;
-            const commentId = req.params.id;
+            const id = req.params.id;
             const { content } = req.body;
 
             const updatedComment = await CommentService.updateComment(
-                commentId,
+                id,
                 userId,
                 { content }
             );

@@ -1,5 +1,7 @@
+import mongoose from "mongoose";
 import { AuthError, NotFoundError } from "../../utils/custom-errors";
-import CommentRepository from "./comment.repoisitory";
+import { ReactionRepository } from "../reaction/reaction.repository";
+import CommentRepository from "./comment.repository";
 
 
 const CommentService = {
@@ -9,17 +11,31 @@ const CommentService = {
     },
 
     /** Get all comments with pagination */
-    getAllComments: async (page: number, limit: number) => {
-        // Ensure page and limit are valid numbers
+    getAllComments: async (userId: string, page: number, limit: number, sort: string) => {
+        // 1. Setup Pagination and Sorting
         const pageNum = Math.max(1, page);
         const limitNum = Math.max(1, limit);
 
-        const { comments, totalCount } = await CommentRepository.findAll(pageNum, limitNum);
+        const { comments, totalCount } = await CommentRepository.findAll(userId, pageNum, limitNum, sort);
+
+        const commentIds = comments.map(c => new mongoose.Types.ObjectId(c._id));
+
+        const reactionMap = await ReactionRepository.findUserReactionsByTargetIds(userId, commentIds);
+
+        const commentsWithReaction = comments.map(comment => {
+            // Look up the reaction status for the current comment ID (O(1) lookup)
+            const reactionStatus = reactionMap ? reactionMap.get(String(comment._id)) : null;
+
+            return {
+                ...comment,
+                currentUserReaction: reactionStatus
+            };
+        });
 
         const totalPages = Math.ceil(totalCount / limitNum);
 
         return {
-            comments,
+            comments: commentsWithReaction,
             meta: {
                 totalCount,
                 totalPages,
@@ -47,9 +63,8 @@ const CommentService = {
         if (!comment) {
             throw new NotFoundError(`Comment with ID ${commentId} not found.`);
         }
-
         // **BUSINESS LOGIC: Check ownership**
-        if (comment.user.toString() !== userId) {
+        if (comment.user._id.toString() !== userId) {
             throw new AuthError('You do not have permission to update this comment.');
         }
 
@@ -65,9 +80,9 @@ const CommentService = {
             // Success, as the comment is already gone
             return true;
         }
-
+        console.log(comment.user.toString(), userId)
         // **BUSINESS LOGIC: Check ownership**
-        if (comment.user.toString() !== userId) {
+        if (comment.user._id.toString() !== userId) {
             throw new AuthError('You do not have permission to delete this comment.');
         }
 
