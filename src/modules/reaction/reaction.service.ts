@@ -1,4 +1,5 @@
 import { ConflictError, NotFoundError } from "../../utils/custom-errors";
+import { emitReactionUpdate } from "../../websocket/ws.manager";
 import CommentRepository from "../comment/comment.repository";
 import { CreateReactionDTO, ReactionRepository } from "./reaction.repository";
 
@@ -19,10 +20,16 @@ export const ReactionService = {
             const newReaction = await ReactionRepository.create(data);
 
             if (reactionType === 'like') {
-                await CommentRepository.updateCount(targetId, reactionType, 1);
+                const updated = await CommentRepository.updateCount(targetId, reactionType, 1);
+                if (updated) {
+                    emitReactionUpdate("Comment_" + String(updated?._id), { targetId: String(updated?._id), likeCount: updated?.likeCount, dislikeCount: updated?.dislikeCount })
+                }
             }
             if (reactionType === 'dislike') {
-                await CommentRepository.updateCount(targetId, reactionType, -1);
+                const updated = await CommentRepository.updateCount(targetId, reactionType, -1);
+                if (updated) {
+                    emitReactionUpdate("Comment_" + String(updated?._id), { targetId: String(updated?._id), likeCount: updated?.likeCount, dislikeCount: updated?.dislikeCount })
+                }
             }
             return { status: 'created', reaction: newReaction };
 
