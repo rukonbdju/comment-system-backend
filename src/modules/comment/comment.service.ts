@@ -16,7 +16,7 @@ const CommentService = {
         const pageNum = Math.max(1, page);
         const limitNum = Math.max(1, limit);
 
-        const { comments, totalCount } = await CommentRepository.findAll(userId, pageNum, limitNum, sort);
+        const { comments, totalCount } = await CommentRepository.findAll(pageNum, limitNum, sort);
 
         const commentIds = comments.map(c => new mongoose.Types.ObjectId(c._id));
 

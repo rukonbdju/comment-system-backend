@@ -18,21 +18,36 @@ const CommentRepository = {
     },
 
     /** Finds all comments with pagination and returns total count. */
-    findAll: async (userId: string, page: number = 1, limit: number = 20, sort?: string) => {
-        const skip = (page - 1) * limit;
+    findAll: async (page: number = 1, limit: number = 20, sort: string = "newest") => {
+        try {
+            const skip = (page - 1) * limit;
 
-        // Fetch comments
-        const comments = await commentModel.find({})
-            .sort({ createdAt: sort === 'old' ? 1 : -1 })
-            .skip(skip)
-            .limit(limit)
-            .populate('user')
-            .lean();
+            const SORT_MAP: Record<string, any> = {
+                newest: { createdAt: -1 },
+                oldest: { createdAt: 1 },
+                "most liked": { likeCount: -1 },
+                "most disliked": { dislikeCount: -1 },
+            };
 
-        // Fetch total count (without filtering)
-        const totalCount = await commentModel.countDocuments({});
+            const sortOrder = SORT_MAP[sort.toLowerCase()] || SORT_MAP.newest;
 
-        return { comments, totalCount };
+            const [comments, totalCount] = await Promise.all([
+                commentModel
+                    .find()
+                    .sort(sortOrder)
+                    .skip(skip)
+                    .limit(limit)
+                    .populate("user")
+                    .lean(),
+
+                commentModel.countDocuments(),
+            ]);
+
+            return { comments, totalCount };
+        } catch (error) {
+            console.error("Error fetching comments:", error);
+            throw new Error("Failed to fetch comments");
+        }
     },
 
     /** Updates a comment's content. */

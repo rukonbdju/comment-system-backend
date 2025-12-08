@@ -33,15 +33,12 @@ export const CommentController = {
             }
             // Extract and parse page and limit from query string. Default to 1 and 20.
             const page = parseInt(req.query.page as string) || 1;
-            const limit = parseInt(req.query.limit as string) || 20;
+            const limit = parseInt(req.query.limit as string) || 2;
+            const sort = String(req.query.sort) || 'newest';
+            console.log({ page, limit, sort })
 
-            const result = await CommentService.getAllComments(userId, page, limit, "new");
+            const result = await CommentService.getAllComments(userId, page, limit, sort);
 
-            // Set pagination headers (optional but recommended for API discoverability)
-            res.header('X-Total-Count', result.meta.totalCount.toString());
-            res.header('X-Total-Pages', result.meta.totalPages.toString());
-            res.header('X-Current-Page', result.meta.currentPage.toString());
-            res.header('X-Page-Limit', result.meta.limit.toString());
 
             res.status(200).json({
                 success: true,
